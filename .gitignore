@@ -1,25 +1,33 @@
 # Dependencies
 node_modules/
-
-# Build output
-apps/server/dist/
-apps/web/dist/
-apps/desktop/dist-electron/
-apps/desktop/portable/
-
-# Dependencies
-node_modules/
 apps/desktop/node_modules/
 apps/server/node_modules/
 apps/web/node_modules/
 
+# Build output
+apps/server/dist/
+apps/web/dist/
+apps/desktop/dist/
+apps/desktop/dist-electron/
+apps/desktop/portable/
+apps/desktop/tsconfig.tsbuildinfo
+apps/web/tsconfig.tsbuildinfo
+
 # Environment files
 .env
 apps/server/.env
+apps/desktop/.env.example
 
-# Uploads (user data)
+# Local server files
+apps/server/dev.db
+apps/server/server.log
+apps/server/backups/
+apps/server/uploads/
 apps/server/uploads/avatars/*
 !apps/server/uploads/avatars/.gitkeep
+
+# Local CLI/extension files
+.claude/
 
 # Deploy artifacts
 vortex-deploy/
