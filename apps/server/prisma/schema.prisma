@@ -1,0 +1,255 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  username    String   @unique
+  displayName String   @default("")
+  email       String?  @unique
+  phone       String?
+  password    String
+  avatar      String?
+  bio         String?
+  birthday    String?
+  e2eePublicKey String?
+  createdAt   DateTime @default(now())
+  lastSeen    DateTime @default(now())
+  isOnline    Boolean  @default(false)
+  hideStoryViews Boolean @default(false)
+  registrationIp String?
+  isBanned    Boolean  @default(false)
+  banReason   String?
+  bannedAt    DateTime?
+  failedLoginAttempts Int @default(0)
+  lockedUntil DateTime?
+  // Custom status
+  statusEmoji String?
+  statusText  String?
+  // Do Not Disturb
+  dndEnabled  Boolean  @default(false)
+  dndFrom     String?  // "HH:MM"
+  dndTo       String?  // "HH:MM"
+  // Blocked users (stored as JSON array of user IDs)
+  blockedUserIds String @default("[]")
+
+  messages    Message[]
+  chatMembers ChatMember[]
+  reactions   Reaction[]
+  readReceipts ReadReceipt[]
+  forwardedMessages Message[] @relation("ForwardedFrom")
+  stories     Story[]
+  storyViews  StoryView[]
+  friendshipsSent     Friendship[] @relation("FriendshipsSent")
+  friendshipsReceived Friendship[] @relation("FriendshipsReceived")
+  sessions    Session[]
+  pollVotes   PollVote[]
+}
+
+model Session {
+  id          String   @id @default(uuid())
+  userId      String
+  refreshToken String  @unique
+  deviceInfo  String?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+  lastUsedAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Chat {
+  id        String   @id @default(uuid())
+  type      String   @default("personal")
+  name      String?
+  avatar    String?
+  createdAt DateTime @default(now())
+  // Auto-delete messages after N days (0 = disabled)
+  autoDeleteDays Int @default(0)
+
+  members        ChatMember[]
+  messages       Message[]
+  pinnedMessages PinnedMessage[]
+}
+
+model ChatMember {
+  id         String    @id @default(uuid())
+  chatId     String
+  userId     String
+  role       String    @default("member")
+  joinedAt   DateTime  @default(now())
+  isMuted    Boolean   @default(false)
+  isArchived Boolean   @default(false)
+  isPinned   Boolean   @default(false)
+  isHidden   Boolean   @default(false)
+  clearedAt  DateTime?
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([chatId, userId])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  chatId    String
+  senderId  String
+  content   String?
+  type      String   @default("text")
+  replyToId String?
+  quote     String?
+  forwardedFromId String?
+  isEdited  Boolean  @default(false)
+  isDeleted Boolean  @default(false)
+  scheduledAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chat    Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender  User     @relation(fields: [senderId], references: [id])
+  replyTo Message? @relation("Reply", fields: [replyToId], references: [id])
+  replies Message[] @relation("Reply")
+  forwardedFrom User? @relation("ForwardedFrom", fields: [forwardedFromId], references: [id])
+
+  media          Media[]
+  reactions      Reaction[]
+  readBy         ReadReceipt[]
+  pinnedIn       PinnedMessage[]
+  hiddenBy       HiddenMessage[]
+  poll           Poll?
+}
+
+model Media {
+  id        String  @id @default(uuid())
+  messageId String
+  type      String
+  url       String
+  filename  String?
+  thumbnail String?
+  size      Int?
+  duration  Float?
+  width     Int?
+  height    Int?
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
+  emoji     String
+  createdAt DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([messageId, userId, emoji])
+}
+
+model ReadReceipt {
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
+  readAt    DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([messageId, userId])
+}
+
+model PinnedMessage {
+  id        String   @id @default(uuid())
+  chatId    String
+  messageId String
+  pinnedAt  DateTime @default(now())
+
+  chat    Chat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([chatId, messageId])
+}
+
+model Story {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String   @default("text")
+  mediaUrl  String?
+  content   String?
+  bgColor   String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  views StoryView[]
+}
+
+model StoryView {
+  id       String   @id @default(uuid())
+  storyId  String
+  userId   String
+  viewedAt DateTime @default(now())
+
+  story Story @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@unique([storyId, userId])
+}
+
+model HiddenMessage {
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
+  hiddenAt  DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+}
+
+model Friendship {
+  id        String   @id @default(uuid())
+  userId    String
+  friendId  String
+  status    String   @default("pending") // pending | accepted | declined
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User @relation("FriendshipsSent", fields: [userId], references: [id], onDelete: Cascade)
+  friend User @relation("FriendshipsReceived", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, friendId])
+}
+
+// ─── Polls ───────────────────────────────────────────────────────────
+
+model Poll {
+  id        String   @id @default(uuid())
+  messageId String   @unique
+  question  String
+  options   String   // JSON: [{id, text}]
+  multipleChoice Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  message Message    @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  votes   PollVote[]
+}
+
+model PollVote {
+  id       String @id @default(uuid())
+  pollId   String
+  userId   String
+  optionId String
+
+  poll Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId, optionId])
+}

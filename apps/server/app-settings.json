@@ -1,0 +1,18 @@
+{
+  "appName": "SAVAфф",
+  "appDescription": "Современный мефывффссенджерasda13213",
+  "logoUrl": "/uploads/logos/logo_1776159350394.png",
+  "registrationPassword": "dsadsad",
+  "requireRegistrationPassword": false,
+  "maxFileSize": 52428800,
+  "maxGroupSize": 10,
+  "messageRetentionDays": 0,
+  "storyExpirationHours": 24,
+  "enableRegistration": true,
+  "enableFileUpload": true,
+  "enableStories": true,
+  "enableVoiceMessages": true,
+  "enableReactions": false,
+  "enableForwarding": true,
+  "enableScheduledMessages": false
+}

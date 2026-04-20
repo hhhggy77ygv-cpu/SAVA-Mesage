@@ -16,7 +16,9 @@ apps/web/tsconfig.tsbuildinfo
 # Environment files
 .env
 apps/server/.env
-apps/desktop/.env.example
+apps/server/.env.prisma
+apps/desktop/.env
+apps/web/.env
 
 # Local server files
 apps/server/dev.db

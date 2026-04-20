@@ -1,0 +1,13 @@
+{
+  "production": {
+    "apiUrl": "http://147.45.147.111/api",
+    "socketUrl": "http://147.45.147.111",
+    "name": "Production Server"
+  },
+  "development": {
+    "apiUrl": "http://localhost:3001/api", 
+    "socketUrl": "http://localhost:3001",
+    "name": "Local Development"
+  },
+  "current": "development"
+}
