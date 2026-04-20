@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Build output
+apps/server/dist/
+apps/web/dist/
+apps/desktop/dist-electron/
+apps/desktop/portable/
+
+# Dependencies
+node_modules/
+apps/desktop/node_modules/
+apps/server/node_modules/
+apps/web/node_modules/
+
+# Environment files
+.env
+apps/server/.env
+
+# Uploads (user data)
+apps/server/uploads/avatars/*
+!apps/server/uploads/avatars/.gitkeep
+
+# Deploy artifacts
+vortex-deploy/
+vortex-deploy.tar.gz
+
+# Credentials
+CREDENTIALS.txt
+
+# Security audit (personal)
+SECURITY_AUDIT.md
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
